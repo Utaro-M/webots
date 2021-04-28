@@ -43,37 +43,46 @@ TexturedBackgroundLight {
 #   translation 3.4 0.29422 3.15
 #   rotation 0 1 0 1.5708
 # }
-Salamander {
+DEF Y1 Salamander {
   translation 2.0 0.29422 3.15
   rotation 0 1 0 1.5708
-  name "teamA_a"   
+  name "Y1"
 }
-Salamander {
+DEF Y2 Salamander {
  translation 2.0 0.80064 0
   rotation 0 1 0 1.5708
-  name "teamA_b"     
+  name "Y2"     
 }
-Salamander {
+DEF Y3 Salamander {
   translation 2.0 0.29422 -3.15
   rotation 0 1 0 1.5708
-  name "teamA_c"     
+  name "Y3"     
 }
-Salamander {
+DEF B1 Salamander {
   translation -2.0 0.29422 3.15
   rotation 0 1 0 -1.5708
-  name "teamB_a"     
+  name "B1"     
 }
-Salamander {
+DEF B2 Salamander {
   translation -2.0 0.29422 0
   rotation 0 1 0 -1.5708
-  name "teamB_b"       
+  name "B2"       
 }
-Salamander {
+DEF B3 Salamander {
   translation -2.0 0.29422 -3.15
   rotation 0 1 0 -1.5708
-  name "teamB_c"       
+  name "B3"       
 }
-
+Robot {
+  children [
+    Emitter {
+      range 10
+      baudRate 115200
+    }
+  ]
+  controller "salamander_referee_supervisor"
+  supervisor TRUE
+}
 DEF FLOOR Solid {
   children [
     DEF GND Group {
@@ -199,7 +208,7 @@ DEF WATER Fluid {
 #     }
 #   }  
 # }
-DEF SPHERE Solid {
+DEF BALL Solid {
   translation 0 1.80064 0
   rotation -0.05050388415752142 0.2566699208005525 0.9651786930103886 4.30555
   children [
