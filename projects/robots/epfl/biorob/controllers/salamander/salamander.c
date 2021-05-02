@@ -47,7 +47,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <webots/distance_sensor.h>
+#include <webots/camera.h>
 #include <webots/gps.h>
 #include <webots/keyboard.h>
 #include <webots/motor.h>
@@ -66,6 +68,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 /* virtual time between two calls to the run() function */
 #define CONTROL_STEP 32
+
+/* camera */
+#define THRESHOLD 200
+#define MAX_SPEED 600
+#define BACKWARD_SPEED 200
+#define K_TURN 4
 
 /* global variables */
 static double spine_offset = 0.0;
@@ -152,6 +160,9 @@ int main() {
   /* distance sensors and gps devices */
   WbDeviceTag ds_left, ds_right, gps;
 
+ /* camera devices */
+  WbDeviceTag cam;
+  unsigned short width, height;
   /* Initialize Webots lib */
   wb_robot_init();
 
@@ -173,6 +184,14 @@ int main() {
   ds_right = wb_robot_get_device("ds_right");
   wb_distance_sensor_enable(ds_right, CONTROL_STEP);
 
+  /* get camera */
+  cam = wb_robot_get_device("camera");
+  /* wb_camera_enable(cam, TIME_STEP_CAM); */
+  wb_camera_enable(cam, CONTROL_STEP);  
+  width = wb_camera_get_width(cam);
+  height = wb_camera_get_height(cam);
+  float *intensity = (float *)malloc(sizeof(float) * width);
+
   /* get and enable gps device */
   gps = wb_robot_get_device("gps");
   wb_gps_enable(gps, CONTROL_STEP);
@@ -192,14 +211,70 @@ int main() {
   /* control loop: sense-compute-act */
   while (wb_robot_step(CONTROL_STEP) != -1) {
     read_keyboard_command();
-
+    
     if (control == AUTO) {
       /* perform sensor measurment */
       double left_val = wb_distance_sensor_get_value(ds_left);
       double right_val = wb_distance_sensor_get_value(ds_right);
 
       /* change direction according to sensor reading */
-      spine_offset = (right_val - left_val);
+      /* spine_offset = (right_val - left_val); */
+
+    /* add 0502 camera */
+    /* use  camera  */
+    const unsigned char *image;
+    int i, j, delta, max, index_max = 0, speed[2];
+    image = wb_camera_get_image(cam);
+    int sum=0;
+    // 2. Handle the sensor values
+    for (i = 0; i < width; i++) {
+      int count = 0;
+      for (j = 0; j < height; j++){
+        count += wb_camera_image_get_blue(image, width, i, j); /* why wb_camera_image_get_blue detect red */
+      }
+      intensity[i] = count;
+      sum+= count;
+    }
+    int ave = sum / width;
+    printf("ave =%d\n", ave);
+    int thre=320000;
+    if (ave < thre){
+      if (spine_offset > -0.4){
+        spine_offset -= 0.2;
+      }else{
+        spine_offset=0;
+      }
+    }
+    delta = 0;
+    max = 0;
+    for (i = 0; i < width; i++) {
+      if (max < intensity[i]) {
+        max = intensity[i];
+        index_max = i;
+        delta = i - (width / 2);
+      }
+    }
+    /* printf("delta=%d\n", delta); */
+    int iter = 0;
+    if (index_max >= 0 && index_max < height) {
+      for (j = 0; j < height; j++) {
+        if (THRESHOLD < wb_camera_image_get_red(image, width, index_max, j))
+          iter++;
+      }
+    } else
+      iter = (MAX_SPEED * height) / (MAX_SPEED + BACKWARD_SPEED);
+    /* printf("iter=%d\n", iter); */
+    if(delta > 0){
+      if (spine_offset > -0.4){
+        spine_offset -= 0.1;
+      }
+      printf("Spine offset: %f\n", spine_offset);
+    }else{
+      if (spine_offset < 0.4)
+          spine_offset += 0.1;
+      printf("Spine offset: %f\n", spine_offset);
+    }
+      /* printf("spine_offset=%d",spine_offset); */
     }
 
     if (control == AUTO || control == KEYBOARD) {
@@ -229,19 +304,15 @@ int main() {
           target_position[i] = WALK_AMPL * ampl * A[i] * sin(phase) + spine_offset;
 
         /* rotate legs */
-        /* target_position[6] = phase; */
-        /* target_position[7] = phase + M_PI; */
-        /* target_position[8] = phase + M_PI; */
-        /* target_position[9] = phase; */
+        target_position[6] = phase;
+        target_position[7] = phase + M_PI;
+        target_position[8] = phase + M_PI;
+        target_position[9] = phase;
         /* 0428 2 */
         /* target_position[6] = M_PI; */
         /* target_position[7] =  M_PI; */
         /* target_position[8] =  M_PI; */
-        /* target_position[9] = M_PI; */
-        target_position[6] = M_PI;
-        target_position[7] =  M_PI;
-        target_position[8] =  M_PI;
-        target_position[9] = M_PI;        
+        /* target_position[9] = M_PI; */       
       } else { /* SWIM */
         /* below water level: swim (travelling wave of robot body) */
         for (i = 0; i < 6; i++)
