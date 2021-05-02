@@ -27,7 +27,8 @@
 #include <webots/supervisor.h>
 
 #define ROBOTS 6  // number of robots
-#define GOAL_X_LIMIT 0.745
+/* #define GOAL_X_LIMIT 0.745 */
+#define GOAL_X_LIMIT 1.5
 #define TIME_STEP 64
 
 static void set_scores(int b, int y) {

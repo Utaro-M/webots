@@ -45,36 +45,36 @@ TexturedBackgroundLight {
 #   translation 3.4 0.29422 3.15
 #   rotation 0 1 0 1.5708
 # }
-# DEF Y1 Salamander {
-#   translation 2.0 0.29422 3.15
-#   rotation 0 1 0 1.5708
-#   name "Y1"
-# }
+DEF Y1 Salamander {
+  translation 1.0 0.29422 1.0
+  rotation 0 1 0 1.5708
+  name "Y1"
+}
 DEF Y2 Salamander {
- translation 2.0 0.80064 0
+ translation 1.5 0.80064 0
   rotation 0 1 0 1.5708
   name "Y2"     
 }
-# DEF Y3 Salamander {
-#   translation 2.0 0.29422 -3.15
-#   rotation 0 1 0 1.5708
-#   name "Y3"     
-# }
-# DEF B1 Salamander {
-#   translation -2.0 0.29422 3.15
-#   rotation 0 1 0 -1.5708
-#   name "B1"     
-# }
-# DEF B2 Salamander {
-#   translation -2.0 0.29422 0
-#   rotation 0 1 0 -1.5708
-#   name "B2"       
-# }
-# DEF B3 Salamander {
-#   translation -2.0 0.29422 -3.15
-#   rotation 0 1 0 -1.5708
-#   name "B3"       
-# }
+DEF Y3 Salamander {
+  translation 1.5 0.29422 -1.0
+  rotation 0 1 0 1.5708
+  name "Y3"     
+}
+DEF B1 Salamander {
+  translation -1.5 0.29422 1.0
+  rotation 0 1 0 -1.5708
+  name "B1"     
+}
+DEF B2 Salamander {
+  translation -1.5 0.29422 0
+  rotation 0 1 0 -1.5708
+  name "B2"       
+}
+DEF B3 Salamander {
+  translation -1.5 0.29422 -1.0
+  rotation 0 1 0 -1.5708
+  name "B3"       
+}
 Robot {
   children [
     Emitter {
@@ -105,7 +105,8 @@ DEF FLOOR Solid {
               }
               geometry Box {
                 # size 3.14249 0.001 8
-                size 12 0.25 8                  
+                # size 12 0.25 8
+                size 8 0.25 6 
               }
             }
           ]
@@ -125,42 +126,48 @@ DEF AQUARIUM Solid {
     DEF SIDES_GROUP Group {
       children [
         Transform {
-          translation 0 0 4
+          # translation 0 0 4
+                    translation 0 0 3
           children [
             DEF GLASS_SHAPE1 Shape {
               appearance DEF GLASS_APPEARANCE PBRAppearance {
                 # baseColor 1 0.6 0.6
-                baseColor 0 1 0
-                
+                # baseColor 0 1 0
+                baseColor 0 1 1 
                 roughness 1
                 metalness 0
               }
               geometry Box {
-                size 12 0.7 0.02
-              }
-            }
-          ]
-        }
-        Transform {
-          translation 0 0 -4
-          children [
-            USE GLASS_SHAPE1
-          ]
-        }
-        Transform {
-          translation -6 0 0
-          rotation 0 1 0 1.5708
-          children [
-            DEF GLASS_SHAPE2 Shape {
-              appearance USE GLASS_APPEARANCE
-              geometry Box {
+                # size 12 0.7 0.02
                 size 8 0.7 0.02
               }
             }
           ]
         }
         Transform {
-          translation 6 0 0
+          # translation 0 0 -4
+          translation 0 0 -3          
+          children [
+            USE GLASS_SHAPE1
+          ]
+        }
+        Transform {
+          # translation -6 0 0
+          translation 4 0 0
+          rotation 0 1 0 1.5708
+          children [
+            DEF GLASS_SHAPE2 Shape {
+              appearance USE GLASS_APPEARANCE
+              geometry Box {
+                # size 8 0.7 0.02
+                size 6 0.7 0.02
+              }
+            }
+          ]
+        }
+        Transform {
+          # translation 6 0 0
+          translation -4 0 0
           rotation 0 1 0 1.5708
           children [
             USE GLASS_SHAPE2
@@ -184,7 +191,10 @@ DEF WATER Fluid {
         metalness 0
       }
       geometry Box {
-        size 12 0.25 8 #contoroler のwater_levelなどとの兼ね合い 
+        # size 12 0.25 8
+        #contoroler のwater_levelなどとの兼ね合い
+        size 8 0.25 6
+        
       }
     }
   ]
@@ -225,7 +235,8 @@ DEF BALL Solid {
     metalness 0
   }      
       geometry Sphere {
-        radius 0.15
+        # radius 0.15
+        radius 0.4
         subdivision 2
       }
     }

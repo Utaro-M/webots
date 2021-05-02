@@ -54,6 +54,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <webots/keyboard.h>
 #include <webots/motor.h>
 #include <webots/robot.h>
+/* #include <Point.h> */
+/* #include <ColorFinder.h> */
+/* #include <Image.h> */
+/* #include <ImgProcess.h> */
 
 /* for array indexing */
 #define X 0
@@ -225,6 +229,14 @@ int main() {
     const unsigned char *image;
     int i, j, delta, max, index_max = 0, speed[2];
     image = wb_camera_get_image(cam);
+
+  /*   Point2D pos; */
+  /* mBuffer->m_BGRAFrame->m_ImageData = (unsigned char *)image; */
+  /* // Convert the image from BGRA format to HSV format */
+  /* ImgProcess::BGRAtoHSV(mBuffer); */
+  /* // Extract position of the ball from HSV verson of the image */
+  /* pos = mFinder->GetPosition(mBuffer->m_HSVFrame);     */
+    
     int sum=0;
     // 2. Handle the sensor values
     for (i = 0; i < width; i++) {
@@ -235,16 +247,16 @@ int main() {
       intensity[i] = count;
       sum+= count;
     }
-    int ave = sum / width;
-    printf("ave =%d\n", ave);
-    int thre=320000;
-    if (ave < thre){
-      if (spine_offset > -0.4){
-        spine_offset -= 0.2;
-      }else{
-        spine_offset=0;
-      }
-    }
+    /* int ave = sum / width; */
+    /* printf("ave =%d\n", ave); */
+    int thre=9800;
+    /* if (ave < thre){ */
+    /*   if (spine_offset > -0.4){ */
+    /*     spine_offset -= 0.2; */
+    /*   }else{ */
+    /*     spine_offset=0; */
+    /*   } */
+    /* } */
     delta = 0;
     max = 0;
     for (i = 0; i < width; i++) {
