@@ -133,7 +133,7 @@ DEF AQUARIUM Solid {
               appearance DEF GLASS_APPEARANCE PBRAppearance {
                 # baseColor 1 0.6 0.6
                 # baseColor 0 1 0
-                baseColor 0 1 1 
+                baseColor 0 1 1
                 roughness 1
                 metalness 0
               }
