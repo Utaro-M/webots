@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <webots/distance_sensor.h>
 #include <webots/camera.h>
 #include <webots/gps.h>
@@ -71,7 +72,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define WATER_LEVEL 0.0
 
 /* virtual time between two calls to the run() function */
-#define CONTROL_STEP 32
+/* #define CONTROL_STEP 32 */
+#define CONTROL_STEP 64
 
 /* camera */
 #define THRESHOLD 200
@@ -83,7 +85,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 static double spine_offset = 0.0;
 static double ampl = 1.0;
 static double phase = 0.0; /* current locomotion phase */
-
+static int searching_flag =1;
+static int initializing_flag =1;
 /* control types */
 enum { AUTO, KEYBOARD, STOP };
 static int control = AUTO;
@@ -154,7 +157,11 @@ int main() {
   const double FREQUENCY = 1.4; /* locomotion frequency [Hz] */
   const double WALK_AMPL = 0.6; /* radians */
   const double SWIM_AMPL = 1.0; /* radians */
-
+  srand((unsigned int)time(NULL));
+  double initial_spine_offset = pow(-1,rand()%2)*0.1;
+  /* sleep(0.1); */
+  printf("rand =%d",rand());
+  printf("initial_spine_offset=%f",initial_spine_offset);
   /* body and leg motors */
   WbDeviceTag motor[NUM_MOTORS];
   /* double target_position[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; */
@@ -167,7 +174,7 @@ int main() {
  /* camera devices */
   WbDeviceTag cam;
   unsigned short width, height;
-  /* Initialize Webots lib */
+  /* Initialtialize Webots lib */
   wb_robot_init();
 
   /* for loops */
@@ -212,8 +219,14 @@ int main() {
   printf(" 'Spacebar' --> STOP the robot motors\n");
   printf(" 'A' --> return to AUTO steering mode\n");
 
+  int counter =0;
   /* control loop: sense-compute-act */
   while (wb_robot_step(CONTROL_STEP) != -1) {
+    if (40<counter){
+      initializing_flag=0;
+    }else{
+      counter++;
+    }
     read_keyboard_command();
     
     if (control == AUTO) {
@@ -237,18 +250,36 @@ int main() {
   /* // Extract position of the ball from HSV verson of the image */
   /* pos = mFinder->GetPosition(mBuffer->m_HSVFrame);     */
     
-    int sum=0;
+    int sum_blue=0;
+    int sum_red=0;
+    int sum_green=0;
     // 2. Handle the sensor values
     for (i = 0; i < width; i++) {
-      int count = 0;
-      for (j = 0; j < height; j++){
-        count += wb_camera_image_get_blue(image, width, i, j); /* why wb_camera_image_get_blue detect red */
+      int count_blue = 0;
+      int count_green = 0;
+      int count_red = 0;
+      for (j = 0; j < height-24; j++){
+        count_blue += wb_camera_image_get_blue(image, width, i, j); /* why wb_camera_image_get_blue detect red */
+        count_green += wb_camera_image_get_green(image, width, i, j);
+        count_red += wb_camera_image_get_red(image, width, i, j);
       }
-      intensity[i] = count;
-      sum+= count;
+      intensity[i] = count_red;
+      sum_blue+= count_blue;
+      sum_green+= count_green;
+      sum_red+= count_red;
     }
-    /* int ave = sum / width; */
-    /* printf("ave =%d\n", ave); */
+    int ave_blue = sum_blue / width;
+    int ave_red = sum_red / width;
+    
+    int ave_green = sum_green / width;
+    /* double area_red = sum_red / ((height-24)*width*(height-24)); */
+    /* printf("area_red =%f\n", area_red); */
+    /* printf("ave_red =%d\n", ave_red); */
+    /* printf("ave_blue =%d\n", ave_blue); */
+    /* printf("ave_green =%d\n", ave_green); */
+    /* printf("sum_red =%d\n", sum_red); */
+    /* printf("sum_blue =%d\n", sum_blue); */
+    /* printf("sum_green =%d\n", sum_green); */
     int thre=9800;
     /* if (ave < thre){ */
     /*   if (spine_offset > -0.4){ */
@@ -266,29 +297,112 @@ int main() {
         delta = i - (width / 2);
       }
     }
-    /* printf("delta=%d\n", delta); */
-    int iter = 0;
-    if (index_max >= 0 && index_max < height) {
-      for (j = 0; j < height; j++) {
-        if (THRESHOLD < wb_camera_image_get_red(image, width, index_max, j))
-          iter++;
-      }
-    } else
-      iter = (MAX_SPEED * height) / (MAX_SPEED + BACKWARD_SPEED);
+    
+    /* printf("max=%d\n", max); */
+    /* if (max <2000){ */
+    /*   printf("max=%d\n", max); */
+    /*   delta=100; */
+    /* } */
+    
+    /* int iter = 0; */
+    /* if (index_max >= 0 && index_max < height) { */
+    /*   for (j = 0; j < height; j++) { */
+    /*     if (THRESHOLD < wb_camera_image_get_red(image, width, index_max, j)) */
+    /*       iter++; */
+    /*   } */
+    /* } else */
+    /*   iter = (MAX_SPEED * height) / (MAX_SPEED + BACKWARD_SPEED); */
     /* printf("iter=%d\n", iter); */
+    /* if(delta == 100){ */
+    /*   spine_offset = 0.4; */
+    /* }else  */
+    
+    /* if(delta > 0){ */
+    /*   if (spine_offset < 0.4) */
+    /*     spine_offset += 0.1; */
+    /*   printf("Spine offset: %f\n", spine_offset); */
+    /* }else{ */
+    /*   if (spine_offset > -0.4){ */
+    /*     spine_offset -= 0.1; */
+    /*   } */
+    /*   printf("Spine offset: %f\n", spine_offset); */
+    /* } */
+    /* comment out */
     if(delta > 0){
       if (spine_offset > -0.4){
         spine_offset -= 0.1;
       }
-      printf("Spine offset: %f\n", spine_offset);
     }else{
-      if (spine_offset < 0.4)
+      if (spine_offset < 0.4){
           spine_offset += 0.1;
-      printf("Spine offset: %f\n", spine_offset);
+      }
     }
-      /* printf("spine_offset=%d",spine_offset); */
-    }
+/* main */
+    /* if (ave_blue> ave_red || ave_green> ave_red){ */
+    /* /\* if (0.4> area_red){ *\/ */
+    /*   searching_flag +=1; */
+    /*   printf("searching_flag = %d\n",searching_flag); */
+    /* }else{ */
+    /*   searching_flag=0; */
+    /*   printf("searching_flag reset\n"); */
+    /* } */
 
+    /* if(ave_blue<ave_red && ave_green<ave_red){ */
+    /*   searching_flag=-1; */
+    /* }else  */if (ave_blue<ave_red || ave_green<ave_red){
+      searching_flag=0;
+      printf("searching_flag reset\n");
+    }else{
+      searching_flag +=1;
+      printf("searching_flag = %d\n",searching_flag);
+    }
+    /* printf("ave_red =%d\n",ave_red); */
+    
+    /* if (sum_blue> sum_red){ */
+    /*   searching_flag +=1; */
+    /* }else{ */
+    /*   searching_flag=0; */
+    /*   /\* spine_offset=0; *\/ */
+    /*   printf("searching_flag reset\n"); */
+    /* } */
+    if (initializing_flag){
+        printf("in initializing");
+        if(searching_flag<20){
+          spine_offset=initial_spine_offset*-1;
+        }else{
+          spine_offset=initial_spine_offset ;
+        }
+      }else{
+      if(searching_flag==0){
+        printf("find\n");
+      }else if (0< searching_flag && searching_flag<10){
+        spine_offset=0.3;
+      }else if(30<searching_flag){
+        spine_offset=0.4;
+      }
+    }
+    
+/* main           */
+    /* if(60<searching_flag){ */
+    /*   spine_offset=0.3; */
+    /* }else if(30<searching_flag && initializing_flag ==1){ */
+    /*   spine_offset=initial_spine_offset*-1; */
+    /*   printf("in initializing"); */
+    /* }else if (0<searching_flag && initializing_flag==1){ */
+    /*   spine_offset=initial_spine_offset ; */
+    /*   printf("in initializing"); */
+    /* } */
+    
+    
+      /* printf("sum_blue> sum_red %d,%d\n",sum_blue,sum_red); */
+      /* if (((searching_flag%4)==0) || (((searching_flag%4)==1))){ */
+      /*   spine_offset=0.1; */
+      /* }else{ */
+      /*   spine_offset= -0.1; */
+      /* } */
+    /* } */
+    printf("spine_offset=%f\n",spine_offset);
+    }
     if (control == AUTO || control == KEYBOARD) {
       /* increase phase according to elapsed time */
       phase -= (double)CONTROL_STEP / 1000.0 * FREQUENCY * 2.0 * M_PI;

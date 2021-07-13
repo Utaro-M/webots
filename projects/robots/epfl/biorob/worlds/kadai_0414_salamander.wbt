@@ -45,33 +45,34 @@ TexturedBackgroundLight {
 #   translation 3.4 0.29422 3.15
 #   rotation 0 1 0 1.5708
 # }
-DEF Y1 Salamander {
-  translation 1.0 0.29422 1.0
+DEF Y1 MysalamanderA {
+  translation 1.0 0.3 0.4
   rotation 0 1 0 1.5708
   name "Y1"
 }
-DEF Y2 Salamander {
- translation 1.5 0.80064 0
+DEF Y2 MysalamanderA {
+ # translation 1.0 0.80064 0
+  translation 1.0 0.3 0
   rotation 0 1 0 1.5708
   name "Y2"     
 }
-DEF Y3 Salamander {
-  translation 1.5 0.29422 -1.0
+DEF Y3 MysalamanderA {
+  translation 1.0 0.3 -0.4
   rotation 0 1 0 1.5708
   name "Y3"     
 }
-DEF B1 Salamander {
-  translation -1.5 0.29422 1.0
+DEF B1 MysalamanderB {
+  translation -1.0 0.3 0.4
   rotation 0 1 0 -1.5708
   name "B1"     
 }
-DEF B2 Salamander {
-  translation -1.5 0.29422 0
+DEF B2 MysalamanderB {
+  translation -1.0 0.3 0
   rotation 0 1 0 -1.5708
   name "B2"       
 }
-DEF B3 Salamander {
-  translation -1.5 0.29422 -1.0
+DEF B3 MysalamanderB {
+  translation -1.0 0.3 -0.4
   rotation 0 1 0 -1.5708
   name "B3"       
 }
@@ -103,6 +104,7 @@ DEF FLOOR Solid {
                 roughness 1
                 metalness 0
               }
+              
               geometry Box {
                 # size 3.14249 0.001 8
                 # size 12 0.25 8
@@ -133,13 +135,14 @@ DEF AQUARIUM Solid {
               appearance DEF GLASS_APPEARANCE PBRAppearance {
                 # baseColor 1 0.6 0.6
                 # baseColor 0 1 0
-                baseColor 0 1 1
+                baseColor 0 1 0
                 roughness 1
                 metalness 0
               }
               geometry Box {
                 # size 12 0.7 0.02
-                size 8 0.7 0.02
+                # size 8 0.7 0.02
+                size 8 2.0 0.02                
               }
             }
           ]
@@ -160,7 +163,8 @@ DEF AQUARIUM Solid {
               appearance USE GLASS_APPEARANCE
               geometry Box {
                 # size 8 0.7 0.02
-                size 6 0.7 0.02
+                # size 6 0.7 0.02
+                size 6 2.0 0.02                
               }
             }
           ]
@@ -230,10 +234,10 @@ DEF BALL Solid {
       # appearance USE DARK_BROWN
   appearance DEF DARK_BROWN PBRAppearance {
     # baseColor 0.501961 0.337255 0.2
-    baseColor 1 0 0    
+    baseColor 1 0 0
     roughness 1.1102230246251565e-16
     metalness 0
-  }      
+  }
       geometry Sphere {
         # radius 0.15
         radius 0.4

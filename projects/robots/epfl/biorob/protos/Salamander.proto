@@ -14,6 +14,7 @@ PROTO Salamander [
   field SFBool     supervisor      FALSE        # Is `Robot.supervisor`.
   field SFBool     synchronization TRUE         # Is `Robot.synchronization`.
   field MFNode     extensionSlot   []           # Extends the robot with new nodes in the extension slot.
+  # field SFVec3f    colorr          0 0 0
 ]
 {
   Robot {
@@ -38,6 +39,7 @@ PROTO Salamander [
               Shape {
                 appearance DEF SALAMANDER_COLOR PBRAppearance {
                   baseColor 1 0.8 0.3
+                  # baseColor Transform.colorr
                   roughness 0.3
                   metalness 0
                 }
